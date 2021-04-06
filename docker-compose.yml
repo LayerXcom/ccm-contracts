@@ -1,0 +1,18 @@
+version: "3.7"
+services:
+  ganache:
+      image: trufflesuite/ganache-cli:latest
+      ports:
+        - 8554:8545"
+      volumes:
+        - ./ganache_data:/ganache_data
+      networks:
+        anonify_contracts_net:
+          ipv4_address: 172.16.11.2
+
+networks:
+  anonify_contracts_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.11.0/24

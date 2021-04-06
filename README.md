@@ -15,6 +15,11 @@ A command-line utilities for deploying anonify contracts in solidity.
 ### Usage
 
 ```bash
+export CONFIRMATIONS=1
+export ETH_URL=https://u1hf4ydgf1:W79M06uApx55c_6xdJ-VfH9PxDthklww5tq4Psj3kFk@u1b7qg6u7m-u1wjgac2in-rpc.us1-azure.kaleido.io
+```
+
+```bash
 # Deploy a factory contract
 cargo run factory
 

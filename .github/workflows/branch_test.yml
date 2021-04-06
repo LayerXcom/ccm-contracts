@@ -1,57 +1,22 @@
-# name: CI testing for topic branchs
+name: CI testing for topic branchs
 
-# on: push
-
-# jobs:
-#   branch-test:
-#     if: ${{ github.ref != 'refs/heads/main' }}
-#     runs-on: ubuntu-latest
-
-#   steps:
-#   #   - name: Checkout
-#   #     uses: actions/checkout@v2
-
-#     -
-#       name: "Run tests"
-#       run: |
-#         docker-compose up -d
-#         ./test.sh
-
-#   #   - name: "Shutdown"
-#   #     if: always()
-#   #     run: |
-#   #       docker-compose down
-
-name: CI test and docker build/push
-
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+on: push
 
 jobs:
-  ci-test:
+  branch-test:
     if: ${{ github.ref != 'refs/heads/main' }}
-    runs-on: [self-hosted, Linux, X64, jcb-performance]
+    runs-on: ubuntu-latest
 
     steps:
-      -
-        name: Test init
-        run: sudo chown -R anonify-dev:anonify-dev /home/anonify-dev/actions-runner/_work/jcb-performance
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v2
-      -
-        name: Run tests
+
+      - name: "Run tests"
         run: |
-          cp .env.sample .env
-          export SPID=$SPID
-          export SUB_KEY=$SUB_KEY
           docker-compose up -d
-          docker-compose exec -T sgx_machine bash -c "cd authorization-anonify && ./scripts/test.sh"
-        env:
-          SPID: ${{ secrets.SPID }}
-          SUB_KEY: ${{ secrets.SUB_KEY }}
-      -
-        name: Shutdown
-        if: ${{ always() }}
-        run: docker-compose down
+          ./test.sh
+
+      - name: "Shutdown"
+        if: always()
+        run: |
+          docker-compose down

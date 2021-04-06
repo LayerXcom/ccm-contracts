@@ -7,8 +7,8 @@ solc -o contract-build --bin --abi --optimize --overwrite \
     contracts/AnonifyWithEnclaveKey.sol \
     contracts/Factory.sol
 
-export CONFIRMATIONS=1
-export ETH_URL=https://172.16.11.2:8554
+export CONFIRMATIONS=0
+export ETH_URL=http://0.0.0.0:8554
 
 PJ_ROOT_DIR=$(cd $(dirname $0) && pwd)
 cd "${PJ_ROOT_DIR}/deployer"

@@ -3,9 +3,7 @@ services:
   ganache:
       image: trufflesuite/ganache-cli:latest
       ports:
-        - 8554:8545"
-      volumes:
-        - ./ganache_data:/ganache_data
+        - 8554:8545
       networks:
         anonify_contracts_net:
           ipv4_address: 172.16.11.2

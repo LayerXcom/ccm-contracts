@@ -1,0 +1,22 @@
+trigger:
+  tags:
+    include:
+      - v*
+
+pool:
+  name: 'AnonifyDev'
+
+steps:
+- task: Docker@2
+  displayName: Build and Push image
+  inputs:
+    command: buildAndPush
+    containerRegistry: anonify-ci-cd-acr
+    repository: deployer
+    tags: v0.5.10
+    dockerfile: Dockerfile
+    buildContext: .
+- script: docker image prune -f
+  displayName: Remove dangling images
+
+# TODO: deploy contracts and store the contract address

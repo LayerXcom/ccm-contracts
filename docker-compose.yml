@@ -1,5 +1,15 @@
 version: "3.7"
 services:
+  client:
+    image: osuketh/anonify:20210310-1804-1.1.3
+    volumes:
+      - .:/root/anonify-contracts
+    stdin_open: true
+    tty: true
+    networks:
+        anonify_contracts_net:
+          ipv4_address: 172.16.11.3
+
   ganache:
       image: trufflesuite/ganache-cli:latest
       ports:

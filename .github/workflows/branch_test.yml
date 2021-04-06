@@ -11,10 +11,10 @@ jobs:
   #   - name: Checkout
   #     uses: actions/checkout@v2
 
-    - name: "Run tests"
-      run: |
-        docker-compose up -d
-        ./test.sh
+  - name: "Run tests"
+    run: |
+      docker-compose up -d
+      ./test.sh
 
   #   - name: "Shutdown"
   #     if: always()

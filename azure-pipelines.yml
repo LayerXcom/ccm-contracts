@@ -1,0 +1,22 @@
+trigger:
+- main
+
+stages:
+- stage: Docker_Build_and_Push
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  jobs:
+  - job: Docker
+    pool:
+      name: 'AnonifyDev'
+    steps:
+    - task: Docker@2
+      displayName: Build and Push image
+      inputs:
+        command: buildAndPush
+        containerRegistry: anonify-ci-cd-acr
+        repository: deployer
+        tags: latest
+        dockerfile: Dockerfile
+        buildContext: .
+    - script: docker image prune -f
+      displayName: Remove dangling images

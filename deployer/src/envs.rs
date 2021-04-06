@@ -3,9 +3,10 @@ use std::{env, path::PathBuf, ffi::OsStr};
 
 lazy_static! {
     pub(crate) static ref PJ_ROOT_DIR: PathBuf = {
+        let pj_name = env::var("PJ_NAME").unwrap_or("anonify-contracts".to_string());
         let mut current_dir = env::current_dir().unwrap();
         loop {
-            if current_dir.file_name() == Some(OsStr::new("anonify-contracts")) {
+            if current_dir.file_name() == Some(OsStr::new(pj_name.as_str())) {
                 break;
             }
             if !current_dir.pop() {

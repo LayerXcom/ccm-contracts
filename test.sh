@@ -11,6 +11,7 @@ solc -o contract-build --bin --abi --optimize --overwrite \
 
 export CONFIRMATIONS=0
 export ETH_URL=http://172.16.11.2:8545
+export PJ_NAME=anonify-contracts
 
 PJ_ROOT_DIR=$(cd $(dirname $0) && pwd)
 cd "${PJ_ROOT_DIR}/deployer"

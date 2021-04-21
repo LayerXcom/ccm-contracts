@@ -55,7 +55,7 @@ impl Signer {
 pub struct EthDeployer {
     web3: Web3<Http>,
     eth_url: String,
-    unlock_duration: u16,
+    unlock_duration: u16,   // 要らないかも？
 }
 
 impl EthDeployer {
@@ -87,7 +87,7 @@ impl EthDeployer {
     {
         let bin = fs::read_to_string(bin_path)?;
 
-        let tx=TransactionParameters {
+        let tx = TransactionParameters {
             gas: gas.into(),
             chain_id: Some(chain_id),
             data: Bytes::from(hex::decode(bin).unwrap()),

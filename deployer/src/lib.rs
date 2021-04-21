@@ -1,7 +1,35 @@
-use anyhow::{anyhow, Result};
-use std::{env, fs, marker::Send, path::Path};
-use web3::{Web3, contract::{Contract, Options}, signing::{self, Key, SecretKeyRef}, transports::Http, types::{Address, TransactionReceipt}};
+use anyhow::{
+    anyhow,
+    Result,
+};
+use std::{
+    env,
+    fs,
+    marker::Send,
+    path::Path,
+    time,
+};
+use web3::{
+    Web3,
+    api::Namespace,
+    confirm,
+    contract::{
+        Contract,
+        Options,
+    },
+    signing::{
+        Key,
+        SecretKeyRef,
+    },
+    transports::Http,
+    types::{
+        Address,
+        TransactionReceipt,
+        TransactionParameters,
+        Bytes,
+    }};
 use secp256k1::key::SecretKey;
+use hex;
 
 #[derive(Debug)]
 pub struct Signer {
@@ -12,17 +40,13 @@ pub struct Signer {
 impl Signer {
     pub fn new(key: &str) -> Result<Self> {
         let secret_key: SecretKey = key.parse().unwrap();
-        let key = SecretKeyRef::new(&secret_key);
-        let address = key.address();
+        let secret_key_ref = SecretKeyRef::new(&secret_key);
+        let address = secret_key_ref.address();
         
         Ok(Signer {
             secret_key,
             address,
         })
-    }
-
-    pub fn address(&self) -> Address {
-        self.address
     }
 }
 
@@ -52,32 +76,44 @@ impl EthDeployer {
 
     pub async fn deploy<P>(
         &self,
-        abi_path: P,
         bin_path: P,
         confirmations: usize,
         gas: u64,
-        deployer: Address,
+        chain_id: u64,
+        deployer: Signer,
     ) -> Result<Address>
     where
         P: AsRef<Path> + Send + Sync + Copy,
     {
-        let abi = fs::read(abi_path)?;
         let bin = fs::read_to_string(bin_path)?;
 
-        let contract = Contract::deploy(self.web3.eth(), abi.as_slice())?
-            .options(Options::with(|opt| opt.gas = Some(gas.into())))
-            .confirmations(confirmations)
-            .execute(bin.as_str(), (), deployer)
+        let tx=TransactionParameters {
+            gas: gas.into(),
+            chain_id: Some(chain_id),
+            data: Bytes::from(hex::decode(bin).unwrap()),
+            ..Default::default()
+        };
+        let signed = self.web3.accounts()
+            .sign_transaction(tx, &deployer.secret_key)
             .await?;
 
-        Ok(contract.address())
+        let receipt = confirm::send_raw_transaction_with_confirmation(
+            self.web3.eth().transport().clone(),
+            signed.raw_transaction,
+            time::Duration::from_secs(1),
+            confirmations,
+        )
+        .await?;
+        let contract_address: Address = receipt.contract_address.unwrap();
+
+        Ok(contract_address)
     }
 
     pub async fn deploy_anonify_by_factory<P>(
         &self,
         contract_type: &str,
         abi_path: P,
-        signer: Address,
+        signer: Signer,
         gas: u64,
         factory_address: Address,
         confirmations: usize,
@@ -89,17 +125,18 @@ impl EthDeployer {
             .map_err(|e| anyhow!("Failed to load contract abi.: {:?}", e))?;
 
         Contract::new(self.web3.eth(), factory_address, abi)
-            .call_with_confirmations(
+            .signed_call_with_confirmations(
                 contract_type,
                 (),
-                signer,
                 Options::with(|opt| opt.gas = Some(gas.into())),
                 confirmations,
+                &signer.secret_key,
             )
             .await
             .map_err(Into::into)
     }
 
+    // TODO: jkcomment 使わないんだけど、消しちゃう？
     pub async fn get_account(&self, index: usize, password: Option<&str>) -> Result<Address> {
         let accounts = self.web3.eth().accounts().await?;
         if accounts.len() <= index {

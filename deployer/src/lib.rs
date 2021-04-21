@@ -1,11 +1,30 @@
 use anyhow::{anyhow, Result};
 use std::{env, fs, marker::Send, path::Path};
-use web3::{
-    contract::{Contract, Options},
-    transports::Http,
-    types::{Address, TransactionReceipt},
-    Web3,
-};
+use web3::{Web3, contract::{Contract, Options}, signing::{self, Key, SecretKeyRef}, transports::Http, types::{Address, TransactionReceipt}};
+use secp256k1::key::SecretKey;
+
+#[derive(Debug)]
+pub struct Signer {
+    secret_key: SecretKey,
+    address: Address,
+}
+
+impl Signer {
+    pub fn new(key: &str) -> Result<Self> {
+        let secret_key: SecretKey = key.parse().unwrap();
+        let key = SecretKeyRef::new(&secret_key);
+        let address = key.address();
+        
+        Ok(Signer {
+            secret_key,
+            address,
+        })
+    }
+
+    pub fn address(&self) -> Address {
+        self.address
+    }
+}
 
 /// Components needed to deploy a contract
 #[derive(Debug)]

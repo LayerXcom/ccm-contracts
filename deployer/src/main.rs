@@ -1,4 +1,4 @@
-use eth_deployer::EthDeployer;
+use eth_deployer::{EthDeployer, Signer};
 use std::{env, str::FromStr};
 
 mod envs;
@@ -9,33 +9,29 @@ const GAS: u64 = 5_000_000;
 #[tokio::main]
 async fn main() {
     let eth_url = env::var("ETH_URL").expect("ETH_URL is not set");
-    let account_index = env::var("ACCOUNT_INDEX")
-        .unwrap_or_else(|_| "0".to_string())
-        .parse::<usize>()
-        .unwrap();
-    let password = env::var("PASSWORD").ok();
     let confirmations = env::var("CONFIRMATIONS")
         .expect("CONFIRMATIONS is not set")
         .parse::<usize>()
         .expect("Failed to parse CONFIRMATIONS to usize");
-
     let args: Vec<String> = env::args().collect();
     assert!(args.len() == 2 || args.len() == 3);
 
     let deployer = EthDeployer::new(&eth_url).unwrap();
-    let signer = deployer
-        .get_account(account_index, password.as_deref())
-        .await
+    let signer_pri_key = env::var("SIGNER_PRI_KEY").unwrap();
+    let chain_id: u64 = env::var("CHAIN_ID")
+        .unwrap_or_else(|_| "0".to_string())
+        .parse::<u64>()
         .unwrap();
+    let signer = Signer::new(&signer_pri_key).unwrap();
 
     match args[1].as_str() {
         "factory" => {
             let contract_address = deployer
                 .deploy(
-                    &*FACTORY_ABI_PATH,
                     &*FACTORY_BIN_PATH,
                     confirmations,
                     GAS,
+                    chain_id,
                     signer,
                 )
                 .await
@@ -45,10 +41,10 @@ async fn main() {
         "anonify_direct" => {
             let contract_address = deployer
                 .deploy(
-                    &*ANONIFY_ABI_PATH,
                     &*ANONIFY_BIN_PATH,
                     confirmations,
                     GAS,
+                    chain_id,
                     signer,
                 )
                 .await

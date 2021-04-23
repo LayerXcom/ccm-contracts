@@ -33,8 +33,8 @@ use hex;
 
 #[derive(Debug)]
 pub struct Signer {
-    secret_key: SecretKey,
-    address: Address,
+    pub secret_key: SecretKey,
+    pub address: Address,
 }
 
 impl Signer {

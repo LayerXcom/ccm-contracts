@@ -31,7 +31,7 @@ use web3::{
 use secp256k1::key::SecretKey;
 use hex;
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Signer {
     pub secret_key: SecretKey,
     pub address: Address,

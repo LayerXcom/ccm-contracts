@@ -1,7 +1,14 @@
 trigger:
-  tags:
+  branches:
     include:
-      - v*
+      - main
+      - refs/tags/*
+
+variables:
+  ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
+    customTag: 'latest'
+  ${{ if ne(variables['Build.SourceBranchName'], 'main') }}:
+    customTag: $(Build.SourceBranchName)
 
 pool:
   name: 'AnonifyAgent'
@@ -13,7 +20,7 @@ steps:
     command: buildAndPush
     containerRegistry: anonify-ci-cd-acr
     repository: deployer
-    tags: v0.5.10
+    tags: $(customTag)
     dockerfile: Dockerfile
     buildContext: .
 - script: docker image prune -f

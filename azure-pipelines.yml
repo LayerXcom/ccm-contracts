@@ -11,7 +11,7 @@ variables:
     customTag: $(Build.SourceBranchName)
 
 pool:
-  name: 'AnonifyDev'
+  name: 'AnonifyAgent'
 
 steps:
 - task: Docker@2

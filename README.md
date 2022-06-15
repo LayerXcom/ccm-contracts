@@ -1,8 +1,8 @@
-# anonify-contracts
+# ccm-contracts
 
 ## contracts
 
-Building an Anonify contract.
+Building an ccm contract.
 
 ```bash
 solc -o contract-build --bin --abi --optimize --overwrite contracts/AnonifyWithTreeKem.sol contracts/AnonifyWithEnclaveKey.sol contracts/Factory.sol
@@ -10,7 +10,7 @@ solc -o contract-build --bin --abi --optimize --overwrite contracts/AnonifyWithT
 
 ## deployer
 
-A command-line utilities for deploying anonify contracts in solidity.
+A command-line utilities for deploying ccm contracts in solidity.
 
 ### Usage
 
